@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hornex.pro Cat Ears DPS Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a24;
+            color: #e0e0e6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #252538;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 1px solid #3d3d5c;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffcc00;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .description {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .config-box {
+            background: #1e1e2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 600;
+            color: #e0e0e6;
+        }
+
+        .badge {
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            background: #2b2b3d;
+            border: 1px solid #555;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        input[type="number"]:focus {
+            border-color: #ffcc00;
+            outline: none;
+        }
+
+        .calc-btn {
+            background: #ffcc00;
+            color: #1a1a24;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .calc-btn:hover {
+            background: #e6b800;
+        }
+
+        .result-panel {
+            background: #1e1e2d;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 5px solid #00ff88;
+        }
+
+        .result-panel h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dps-value {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stats-breakdown {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #888;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Cat Ears DPS Calculator</h1>
+    <div class="description">
+        Simulating immediate impact gameplay mechanics. Cat Ears removes all orbital travel delay, causing petals to burst instantly on reload and disappear.
+    </div>
+
+    <div class="config-box">
+        <!-- Locked Cat Ears Slot info -->
+        <div class="input-group">
+            <label>Slot 1 Modifier</label>
+            <span class="badge">🐱 Cat Ears Equipped</span>
+        </div>
+
+        <!-- Dynamic Rice Count Input -->
+        <div class="input-group">
+            <label for="rice-count">Ultra Rice Petals (Slots 2–15)</label>
+            <input type="number" id="rice-count" min="0" max="14" value="14">
+        </div>
+
+        <button class="calc-btn" onclick="calculateCatEarsDPS()">Calculate Damage</button>
+    </div>
+
+    <div class="result-panel">
+        <h2>Total Combined DPS</h2>
+        <div class="dps-value" id="total-dps">816,480</div>
+        
+        <div class="stats-breakdown">
+            <span>Per Rice DPS: 58,320</span>
+            <span>Reload Time: 0.05s</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateCatEarsDPS() {
+        // Core configurations defined by user parameters
+        const riceDamage = 2916;
+        const riceReload = 0.05;
+        
+        // Grab and clamp the user input input values between 0 and 14 max slots
+        let riceCount = parseInt(document.getElementById('rice-count').value);
+        if (isNaN(riceCount) || riceCount < 0) riceCount = 0;
+        if (riceCount > 14) {
+            riceCount = 14;
+            document.getElementById('rice-count').value = 14;
+        }
+
+        // Calculation: (Damage / Reload) = Hits per second per individual petal
+        const singlePetalDPS = riceDamage / riceReload;
+        const totalDPS = riceCount * singlePetalDPS;
+
+        // Render localized comma formatting back to output fields
+        document.getElementById('total-dps').innerText = Math.round(totalDPS).toLocaleString();
+    }
+</script>
+
+</body>
+</html>
