@@ -1,289 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hornex Cat Ears DPS Calculator</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #111827;
-            color: #f3f4f6;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hornex Cat Ears DPS Calc</title>
+<style>
+  :root{
+    --panel:#151c27; --panel-2:#101720; --line:#28323f;
+    --text:#e8eef6; --muted:#8a95a4; --accent:#22d3ee; --slot:76px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1100px 520px at 50% -8%, #1a2536 0%, #0b0f16 62%) fixed;
+    color:var(--text); min-height:100vh; padding:16px 16px 48px;
+    user-select:none; -webkit-user-select:none;
+  }
+  input,select,button{font-family:inherit;}
+  input{user-select:text;-webkit-user-select:text;}
+  .wrap{max-width:1080px;margin:0 auto;}
 
-        .container {
-            max-width: 900px;
-            width: 100%;
-            background: #1f2937;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+  .brand{font-size:22px;font-weight:800;}
+  .brand small{font-size:11px;font-weight:700;color:var(--muted);margin-left:8px;letter-spacing:.08em;}
+  .rarity-pick{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;}
+  .rarity-pick span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+  .rar-btn{background:#1d2735;border:1px solid var(--line);color:var(--text);width:26px;height:26px;border-radius:7px;cursor:pointer;font-weight:800;line-height:1;}
+  .rar-btn:hover{background:#26323f;}
+  .rar-name{font-weight:800;min-width:74px;text-align:center;}
 
-        h1 {
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
+  .layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:start;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 10px;font-weight:800;}
 
-        .subtitle {
-            color: #9ca3af;
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
+  .inv-body{display:grid;grid-template-columns:46px minmax(0,1fr);gap:12px;}
+  .rail{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:6px;}
+  .rail button{aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:17px;cursor:pointer;}
+  .rail button.active{background:#22303f;color:var(--text);border-color:var(--line);}
+  .search{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:10px;}
+  .search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;}
+  .palette-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .palette-head b{color:var(--text);}
+  .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;min-height:150px;align-content:start;}
+  .pcard{position:relative;border-radius:10px;border:2px solid;padding:12px 8px;cursor:grab;text-align:center;transition:transform .08s ease,filter .15s;color:#fff;}
+  .pcard:hover{transform:translateY(-2px);filter:brightness(1.12);}
+  .pcard.selected{outline:2px solid var(--accent);outline-offset:2px;}
+  .pcard .nm{font-weight:900;font-size:14px;text-shadow:1px 1px 3px rgba(0,0,0,.6);}
+  .pcard .st{font-size:11px;font-weight:700;opacity:.92;margin-top:3px;text-shadow:1px 1px 2px rgba(0,0,0,.6);}
+  .pcard .sb{font-size:10px;opacity:.85;margin-top:1px;}
+  .pcard .tag{position:absolute;top:4px;right:4px;font-size:8.5px;font-weight:900;letter-spacing:.08em;
+    background:rgba(0,0,0,.42);border-radius:4px;padding:2px 4px;}
 
-        /* Gameplay Inventory Hotbar Grid Layout */
-        .hotbar-container {
-            background: #111827;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-        }
+  .dps-big{font-size:44px;font-weight:900;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums;word-break:break-all;}
+  .dps-unit{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.1em;margin-top:6px;}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;}
+  .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;}
+  .stat .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800;}
+  .stat .v{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .note{color:var(--muted);font-size:11.5px;margin-top:12px;line-height:1.5;}
+  .note.warn{color:#fbbf24;}
 
-        .hotbar-label {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #6b7280;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
+  .hotbar-row{display:flex;gap:12px;align-items:stretch;margin-top:16px;}
+  .hotbar{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;}
+  .slot{position:relative;flex:0 0 auto;width:var(--slot);height:var(--slot);border-radius:10px;border:3px solid;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;transition:transform .08s,filter .12s;color:#fff;}
+  .slot:hover{filter:brightness(1.12);}
+  .slot.dragover{transform:scale(1.06);outline:2px dashed var(--accent);outline-offset:2px;}
+  .slot .num{position:absolute;top:2px;left:5px;font-size:10px;font-weight:800;color:rgba(255,255,255,.65);}
+  .slot .nm{font-weight:900;font-size:14px;text-shadow:1px 1px 3px rgba(0,0,0,.6);}
+  .slot .st{font-size:10.5px;font-weight:700;opacity:.9;text-shadow:1px 1px 2px rgba(0,0,0,.6);}
+  .slot.buff .nm{text-decoration:none;}
+  .slot.buff:after{content:"";position:absolute;inset:0;border-radius:8px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.22);}
+  .slot .x{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;border:1px solid #0006;
+    background:#0d1117cc;color:#fff;font-size:12px;line-height:1;cursor:pointer;display:none;padding:0;}
+  .slot:hover .x{display:block;}
+  .slot.empty{background:var(--panel-2);border:3px dashed #3a4553;}
+  .slot.empty .nm{color:#5b6776;text-shadow:none;font-weight:800;}
 
-        .hotbar-grid {
-            display: flex;
-            gap: 10px;
-            min-width: max-content;
-        }
+  .side{flex:0 0 152px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .side h2{margin:0;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800;}
+  .side .count{font-size:26px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;}
+  .side .btns{display:flex;gap:6px;}
+  .side .btns button{flex:1;background:#1d2735;border:1px solid var(--line);color:var(--text);border-radius:8px;height:30px;font-weight:900;cursor:pointer;font-size:15px;}
+  .side .btns button:hover{background:#26323f;}
+  .side input[type=range]{width:100%;accent-color:var(--accent);}
+  .side .presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .side .presets button{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:7px;height:26px;font-size:11px;font-weight:800;cursor:pointer;}
+  .side .presets button:hover{color:var(--text);}
 
-        .petal-slot {
-            width: 75px;
-            height: 75px;
-            background: #e11d48; /* Authentic bright pink/rose background from screenshot */
-            border: 3px solid #be123c;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s ease, filter 0.2s;
-            position: relative;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center;}
+  .actions button{background:#1d2735;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 14px;font-weight:800;font-size:12.5px;cursor:pointer;}
+  .actions button:hover{background:#26323f;}
+  .actions .primary{background:var(--accent);color:#062026;border-color:#0e7490;}
+  .actions .primary:hover{background:#38dcf3;}
+  .actions .code{flex:1;min-width:170px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--text);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;outline:none;}
+  .hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.6;}
 
-        .petal-slot:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
+  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#0f1a24;border:1px solid var(--line);
+    color:var(--text);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.22s;}
+  .toast.on{opacity:1;transform:translate(-50%,0);}
 
-        .petal-slot.empty {
-            background: #1f2937;
-            border: 3px dashed #4b5563;
-            box-shadow: none;
-        }
-
-        .petal-icon {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .petal-name {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: white;
-            background: rgba(0,0,0,0.4);
-            padding: 2px 5px;
-            border-radius: 4px;
-            margin-top: 4px;
-            text-transform: capitalize;
-        }
-
-        .slot-number {
-            position: absolute;
-            top: 2px;
-            left: 4px;
-            font-size: 0.65rem;
-            color: rgba(255,255,255,0.6);
-            font-weight: bold;
-        }
-
-        .calc-btn {
-            background: #22d3ee; /* Bright Cyan accent color matching your calculator build button */
-            color: #0f172a;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-            box-shadow: 0 4px 14px rgba(34, 211, 238, 0.3);
-            margin-bottom: 30px;
-        }
-
-        .calc-btn:hover {
-            background: #06b6d4;
-        }
-
-        /* Analysis Stats Display Grid */
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: #111827;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #374151;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .stat-value.highlight {
-            color: #22d3ee;
-        }
-
-        .footnote {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 8px;
-        }
-    </style>
+  @media (max-width:880px){ .layout{grid-template-columns:1fr;} .hotbar-row{flex-direction:column;} .side{flex:0 0 auto;} }
+</style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Hornex Calculator</h1>
-    <div class="subtitle">Estimate real combat damage with cat ears mechanics and traveling latency.</div>
-
-    <div class="hotbar-container">
-        <div class="hotbar-label">Click a slot to toggle an Ultra Rice petal on or off</div>
-        <div class="hotbar-grid" id="hotbar">
-            <!-- Slot 1 Locked to Ears -->
-            <div class="petal-slot">
-                <span class="slot-number">1</span>
-                <span class="petal-icon">🐱</span>
-                <span class="petal-name">Ears</span>
-            </div>
-            <!-- Slots 2-15 generated dynamically -->
-        </div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Hornex Cat Ears DPS Calc<small>rice / ears</small></div>
+    <div class="rarity-pick">
+      <span>Rarity</span>
+      <button class="rar-btn" id="rarDown">&lt;</button>
+      <div class="rar-name" id="rarName">Ultra</div>
+      <button class="rar-btn" id="rarUp">&gt;</button>
     </div>
+  </div>
 
-    <button class="calc-btn" onclick="runCalculations()">Calculate</button>
+  <div class="layout">
+    <section class="panel">
+      <h2>Inventory</h2>
+      <div class="inv-body">
+        <div class="rail">
+          <button class="active" title="All">✦</button>
+          <button title="Damage">⚔</button>
+          <button title="Buff">✿</button>
+          <button title="Settings">⚙</button>
+        </div>
+        <div>
+          <div class="search">
+            <span style="color:#8a95a4">⌕</span>
+            <input id="search" placeholder="Search petals..." />
+          </div>
+          <div class="palette-head">
+            <span>Petals</span>
+            <b id="rarName2">Ultra</b>
+          </div>
+          <div class="palette" id="palette"></div>
+        </div>
+      </div>
+      <div class="hint">
+        Drag a petal into a slot · drag a slot onto another slot to swap · click a petal then click a slot to place ·
+        right-click or × to empty · drag a slot onto the inventory to remove.
+        Ears deals no damage — it only enables rice uptime.
+      </div>
+    </section>
 
-    <h2>Analysis</h2>
-    <div class="analysis-grid">
-        <div class="stat-card">
-            <div class="stat-label">Active Rice Slots</div>
-            <div id="active-slots" class="stat-value">14</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Total Combined DPS</div>
-            <div id="total-dps" class="stat-value highlight">408,240</div>
-            <div class="footnote">Accounts for 0.05s reload + 0.05s hit delay.</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Total Hits Per Second</div>
-            <div id="hits-per-second" class="stat-value">140</div>
-            <div class="footnote">Combined speed across all elements.</div>
-        </div>
-    </div>
+    <section class="panel">
+      <h2>Cat Ears DPS</h2>
+      <div class="dps-big" id="dpsOut">0</div>
+      <div class="dps-unit">DAMAGE PER SECOND</div>
+      <div class="grid2">
+        <div class="stat"><div class="k">Hits / sec</div><div class="v" id="hpsOut">0</div></div>
+        <div class="stat"><div class="k">Petals active</div><div class="v" id="activeOut">0</div></div>
+        <div class="stat"><div class="k">Rice</div><div class="v" id="riceOut">0</div></div>
+        <div class="stat"><div class="k">Ears</div><div class="v" id="earsOut">0</div></div>
+      </div>
+      <div class="note" id="note">—</div>
+    </section>
+  </div>
+
+  <div class="hotbar-row">
+    <div class="hotbar" id="hotbar"></div>
+    <aside class="side">
+      <h2>Slots</h2>
+      <div class="count" id="slotCountOut">15</div>
+      <div class="btns">
+        <button id="slotMinus">−</button>
+        <button id="slotPlus">+</button>
+      </div>
+      <input id="slotRange" type="range" min="1" max="30" value="15" />
+      <div class="presets">
+        <button data-n="5">5</button>
+        <button data-n="10">10</button>
+        <button data-n="15">15</button>
+        <button data-n="20">20</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="actions">
+    <button id="btnReset">Reset</button>
+    <button id="btnFillRice">Fill Rice</button>
+    <button id="btnExportImg">Export Image</button>
+    <button class="primary" id="btnCopy">Copy Build Code</button>
+    <input class="code" id="codeField" placeholder="build code — e.g. E R R R ..." />
+    <button id="btnImport">Import</button>
+  </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
-    const totalSlots = 15;
-    // Core parameters provided by user settings
-    const riceDamage = 2916;
-    const baseReload = 0.05;
-    const travelDelay = 0.05; // 1.) Added 0.05-second travel latency feature
-    const totalCycleTime = baseReload + travelDelay; // Total loop time per drop sequence
+/* ---------------- tuning constants ---------------- */
+const RICE_BASE_DMG  = 4;     // Common rice damage
+const RARITY_GROWTH  = 3;     // damage x this per rarity tier
+const RESPAWN        = 0.05;  // seconds
+const TRAVEL         = 0.05;  // seconds, drop travel latency
+const CONTACT_EARS    = 1.0;  // rice uptime with ears equipped
+const CONTACT_NO_EARS = 0.5;  // rice uptime without ears
 
-    // Track active deck arrays (Slots 2 through 15 default to true/active)
-    let slotStates = Array(totalSlots + 1).fill(true);
+const RARITIES = ["Common","Unusual","Rare","Epic","Legendary","Mythic","Ultra","Super","Hyper"];
+const RCOLOR = {
+  Common:["#8b96a5","#5b6672"], Unusual:["#5fbf6a","#357c40"], Rare:["#4f8ef7","#2a58a8"],
+  Epic:["#a855f7","#6b21a8"], Legendary:["#f59e0b","#a16207"], Mythic:["#ec4899","#9d174d"],
+  Ultra:["#e11d48","#9f1239"], Super:["#14b8a6","#0f766e"], Hyper:["#ef4444","#991b1b"]
+};
 
-    const hotbar = document.getElementById('hotbar');
+/* ears = 0 damage, buff only */
+const PETALS = {
+  ears:{ name:"Ears", dmgMult:0, kind:"buff",  label:"no dmg", sub:"keeps rice parked" },
+  rice:{ name:"Rice", dmgMult:1, kind:"damage", label:"dmg",    sub:"respawn" }
+};
 
-    // Build functional deck hotbar rows matching gameplay parameters
-    for (let i = 2; i <= totalSlots; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'petal-slot';
-        slot.id = `slot-${i}`;
-        slot.innerHTML = `
-            <span class="slot-number">${i}</span>
-            <span class="petal-icon">🍚</span>
-            <span class="petal-name">Rice</span>
-        `;
-        
-        // Setup direct toggle click behaviors
-        slot.addEventListener('click', () => {
-            slotStates[i] = !slotStates[i];
-            if (slotStates[i]) {
-                slot.className = 'petal-slot';
-                slot.innerHTML = `
-                    <span class="slot-number">${i}</span>
-                    <span class="petal-icon">🍚</span>
-                    <span class="petal-name">Rice</span>
-                `;
-            } else {
-                slot.className = 'petal-slot empty';
-                slot.innerHTML = `
-                    <span class="slot-number">${i}</span>
-                    <span class="petal-icon" style="color:#4b5563; font-weight:normal;">—</span>
-                `;
-            }
-            runCalculations();
-        });
-        
-        hotbar.appendChild(slot);
+const state = { rarity:"Ultra", slotCount:15, slots:[], selected:null };
+
+const $ = id => document.getElementById(id);
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("on"), 1500);
+}
+const rIdx = () => RARITIES.indexOf(state.rarity);
+const petalDmg = key => PETALS[key].dmgMult * RICE_BASE_DMG * Math.pow(RARITY_GROWTH, rIdx());
+const fmt = n => Math.round(n).toLocaleString();
+const fmtDec = n => n.toLocaleString(undefined,{maximumFractionDigits:1});
+
+function initSlots(){ state.slots = Array.from({length:state.slotCount},(_,i)=> i===0 ? "ears" : "rice"); }
+
+/* ---------------- inventory ---------------- */
+function renderPalette(){
+  const q = $("search").value.trim().toLowerCase();
+  const [c,b] = RCOLOR[state.rarity];
+  const pal = $("palette"); pal.innerHTML = "";
+  Object.keys(PETALS).forEach(key=>{
+    const p = PETALS[key];
+    if(q && !p.name.toLowerCase().includes(q)) return;
+    const el = document.createElement("div");
+    el.className = "pcard" + (state.selected===key ? " selected" : "");
+    el.draggable = true;
+    el.style.background = c; el.style.borderColor = b;
+    const dmg = petalDmg(key);
+    el.innerHTML = `<div class="tag">${p.kind.toUpperCase()}</div>
+      <div class="nm">${p.name}</div>
+      <div class="st">${dmg ? fmt(dmg)+" dmg" : p.label}</div>
+      <div class="sb">${state.rarity} · ${p.sub}</div>`;
+    el.addEventListener("dragstart", e=>{
+      e.dataTransfer.setData("text/plain","p:"+key);
+      e.dataTransfer.effectAllowed = "copy";
+    });
+    el.addEventListener("click", ()=>{ state.selected = state.selected===key ? null : key; renderPalette(); });
+    pal.appendChild(el);
+  });
+}
+
+/* ---------------- slots ---------------- */
+function renderHotbar(){
+  const hb = $("hotbar"); hb.innerHTML = "";
+  const [c,b] = RCOLOR[state.rarity];
+  state.slots.forEach((key,i)=>{
+    const el = document.createElement("div");
+    el.className = "slot" + (key ? "" : " empty") + (key && PETALS[key].kind === "buff" ? " buff" : "");
+    el.draggable = true;
+    if(key){
+      el.style.background = c; el.style.borderColor = b;
+      const dmg = petalDmg(key);
+      el.innerHTML = `<span class="num">${i+1}</span><button class="x" title="remove">×</button>
+        <div class="nm">${PETALS[key].name}</div><div class="st">${dmg ? fmt(dmg) : PETALS[key].label}</div>`;
+    } else {
+      el.style.borderColor = "#3a4553";
+      el.innerHTML = `<span class="num">${i+1}</span><button class="x" title="remove">×</button><div class="nm">—</div>`;
     }
+    el.addEventListener("dragstart", e=>{
+      e.dataTransfer.setData("text/plain","s:"+i);
+      e.dataTransfer.effectAllowed = "move";
+    });
+    el.addEventListener("dragover", e=>{ e.preventDefault(); el.classList.add("dragover"); });
+    el.addEventListener("dragleave", ()=> el.classList.remove("dragover"));
+    el.addEventListener("drop", e=>{
+      e.preventDefault(); el.classList.remove("dragover");
+      const d = e.dataTransfer.getData("text/plain");
+      if(d.startsWith("p:")) state.slots[i] = d.slice(2);
+      else if(d.startsWith("s:")){
+        const j = +d.slice(2);
+        const tmp = state.slots[i]; state.slots[i] = state.slots[j]; state.slots[j] = tmp;
+      }
+      render();
+    });
+    el.addEventListener("click", e=>{
+      if(e.target.classList.contains("x")){ state.slots[i] = null; render(); return; }
+      state.slots[i] = state.selected ? state.selected : null;
+      render();
+    });
+    el.addEventListener("contextmenu", e=>{ e.preventDefault(); state.slots[i] = null; render(); });
+    hb.appendChild(el);
+  });
+}
 
-    function runCalculations() {
-        // Count how many inventory indexes remain active
-        let riceCount = 0;
-        for (let i = 2; i <= totalSlots; i++) {
-            if (slotStates[i]) riceCount++;
-        }
+$("palette").addEventListener("dragover", e=>e.preventDefault());
+$("palette").addEventListener("drop", e=>{
+  e.preventDefault();
+  const d = e.dataTransfer.getData("text/plain");
+  if(d.startsWith("s:")){ state.slots[+d.slice(2)] = null; render(); }
+});
 
-        // Calculations accounting for structural projectile travel latencies
-        const hitsPerSecondPerPetal = 1 / totalCycleTime; // 1 / 0.10s = 10 attacks per second
-        const totalHitsPerSecond = riceCount * hitsPerSecondPerPetal;
-        const totalDPS = totalHitsPerSecond * riceDamage;
+/* ---------------- calc ---------------- */
+function calc(){
+  const cycle = Math.max(0.001, RESPAWN + TRAVEL);
+  const rice = state.slots.filter(k=>k==="rice").length;
+  const ears = state.slots.filter(k=>k==="ears").length;
+  const contact = ears > 0 ? CONTACT_EARS : CONTACT_NO_EARS;
+  const hps = rice / cycle;
+  return { rice, ears, hps, dps: hps * petalDmg("rice") * contact };
+}
 
-        // Render localized updates back into elements
-        document.getElementById('active-slots').innerText = riceCount;
-        document.getElementById('total-dps').innerText = Math.round(totalDPS).toLocaleString();
-        document.getElementById('hits-per-second').innerText = Math.round(totalHitsPerSecond).toLocaleString();
+function render(){
+  renderPalette(); renderHotbar();
+  const { rice, ears, hps, dps } = calc();
+  $("dpsOut").textContent = dps >= 1000 ? fmt(dps) : fmtDec(dps);
+  $("hpsOut").textContent = fmtDec(hps);
+  $("activeOut").textContent = state.slots.filter(Boolean).length;
+  $("riceOut").textContent = rice;
+  $("earsOut").textContent = ears;
+  $("rarName").textContent = state.rarity;
+  $("rarName2").textContent = state.rarity;
+
+  const note = $("note");
+  if(ears > 0){
+    note.classList.remove("warn");
+    note.textContent = "Ears equipped: orbit stays parked on the mob, rice keeps full contact. Ears itself deals 0 damage.";
+  } else {
+    note.classList.add("warn");
+    note.textContent = "No ears in the build: rice swings back between hits, so only partial contact.";
+  }
+  $("codeField").value = buildCode();
+}
+
+/* ---------------- slot count ---------------- */
+function setSlotCount(n){
+  n = Math.max(1, Math.min(30, Math.round(n)));
+  const old = state.slots.slice();
+  state.slotCount = n;
+  state.slots = Array.from({length:n},(_,i)=> old[i] !== undefined ? old[i] : (i===0 ? "ears" : "rice"));
+  $("slotCountOut").textContent = n;
+  $("slotRange").value = n;
+  render();
+}
+$("slotPlus").onclick = ()=> setSlotCount(state.slotCount+1);
+$("slotMinus").onclick = ()=> setSlotCount(state.slotCount-1);
+$("slotRange").oninput = e => setSlotCount(+e.target.value);
+document.querySelectorAll(".side .presets button").forEach(b => b.onclick = ()=> setSlotCount(+b.dataset.n));
+
+/* ---------------- rarity ---------------- */
+$("rarUp").onclick = ()=>{ state.rarity = RARITIES[Math.min(RARITIES.length-1, rIdx()+1)]; render(); };
+$("rarDown").onclick = ()=>{ state.rarity = RARITIES[Math.max(0, rIdx()-1)]; render(); };
+$("search").addEventListener("input", renderPalette);
+
+/* ---------------- actions ---------------- */
+function buildCode(){ return state.slots.map(k => k==="ears" ? "E" : k==="rice" ? "R" : ".").join(""); }
+$("btnReset").onclick = ()=>{ initSlots(); state.selected = null; render(); toast("Build reset"); };
+$("btnFillRice").onclick = ()=>{ state.slots = state.slots.map(k=> k==="ears" ? "ears" : "rice"); render(); };
+$("btnCopy").onclick = ()=>{
+  const code = buildCode();
+  if(navigator.clipboard) navigator.clipboard.writeText(code).then(()=>toast("Copied: "+code), ()=>toast(code));
+  else toast(code);
+};
+$("btnImport").onclick = ()=>{
+  const raw = $("codeField").value.toUpperCase().replace(/[^ER.]/g,"");
+  if(!raw) return toast("Nothing to import");
+  state.slots = raw.split("").map(ch => ch==="E" ? "ears" : ch==="R" ? "rice" : null);
+  setSlotCount(state.slots.length);
+  toast("Build imported");
+};
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+$("btnExportImg").onclick = ()=>{
+  const s=76, gap=8, pad=18, top=16, bot=30, n = state.slots.length;
+  const W = pad*2 + n*s + (n-1)*gap, H = top+pad+s+bot;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#0d1117"; ctx.fillRect(0,0,W,H);
+  const [c,b] = RCOLOR[state.rarity];
+  state.slots.forEach((k,i)=>{
+    const x = pad + i*(s+gap), y = top+pad;
+    roundRect(ctx,x,y,s,s,10);
+    ctx.fillStyle = k ? c : "#161d27"; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = k ? b : "#3a4553"; ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = "bold 10px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText(String(i+1), x+6, y+15);
+    if(k){
+      ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(PETALS[k].name, x+s/2, y+s/2+5);
     }
+  });
+  ctx.fillStyle = "#22d3ee"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("DPS " + fmt(calc().dps) + "  ·  " + state.rarity + "  ·  " + n + " slots", pad, H-10);
+  const a = document.createElement("a");
+  a.download = "hornex-build.png"; a.href = cv.toDataURL("image/png"); a.click();
+  toast("Image exported");
+};
 
-    // Execute baseline setup calculations upon startup initialization
-    runCalculations();
+initSlots();
+setSlotCount(15);
+render();
 </script>
-
 </body>
 </html>
