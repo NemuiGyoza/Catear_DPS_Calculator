@@ -3,196 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hornex.pro Cat Ears DPS Calculator</title>
+    <title>Hornex Cat Ears DPS Calculator</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a24;
-            color: #e0e0e6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 900px;
             width: 100%;
-            background: #252538;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            border: 1px solid #3d3d5c;
+            background: #1f2937;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         h1 {
-            text-align: center;
-            color: #ffcc00;
+            font-size: 2rem;
             margin-top: 0;
-            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
-        .description {
-            text-align: center;
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            line-height: 1.4;
+        .subtitle {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
         }
 
-        .config-box {
-            background: #1e1e2d;
+        /* Gameplay Inventory Hotbar Grid Layout */
+        .hotbar-container {
+            background: #111827;
             padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .hotbar-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .hotbar-grid {
+            display: flex;
+            gap: 10px;
+            min-width: max-content;
+        }
+
+        .petal-slot {
+            width: 75px;
+            height: 75px;
+            background: #e11d48; /* Authentic bright pink/rose background from screenshot */
+            border: 3px solid #be123c;
             border-radius: 8px;
-            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-        }
-
-        .input-group {
-            display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease, filter 0.2s;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
 
-        label {
-            font-weight: 600;
-            color: #e0e0e6;
+        .petal-slot:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
         }
 
-        .badge {
-            background: #ff4444;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
+        .petal-slot.empty {
+            background: #1f2937;
+            border: 3px dashed #4b5563;
+            box-shadow: none;
         }
 
-        input[type="number"] {
-            background: #2b2b3d;
-            border: 1px solid #555;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
+        .petal-icon {
             font-size: 1.1rem;
-            width: 80px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
             text-align: center;
+            line-height: 1.2;
         }
 
-        input[type="number"]:focus {
-            border-color: #ffcc00;
-            outline: none;
+        .petal-name {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: white;
+            background: rgba(0,0,0,0.4);
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-top: 4px;
+            text-transform: capitalize;
+        }
+
+        .slot-number {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: bold;
         }
 
         .calc-btn {
-            background: #ffcc00;
-            color: #1a1a24;
+            background: #22d3ee; /* Bright Cyan accent color matching your calculator build button */
+            color: #0f172a;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px 28px;
+            border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             width: 100%;
             transition: background 0.2s;
+            box-shadow: 0 4px 14px rgba(34, 211, 238, 0.3);
+            margin-bottom: 30px;
         }
 
         .calc-btn:hover {
-            background: #e6b800;
+            background: #06b6d4;
         }
 
-        .result-panel {
-            background: #1e1e2d;
+        /* Analysis Stats Display Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #111827;
             padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 5px solid #00ff88;
+            border-radius: 12px;
+            border: 1px solid #374151;
         }
 
-        .result-panel h2 {
-            margin: 0 0 5px 0;
-            font-size: 1.1rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .dps-value {
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: #00ff88;
-        }
-
-        .stats-breakdown {
-            margin-top: 15px;
+        .stat-label {
             font-size: 0.85rem;
-            color: #888;
-            display: flex;
-            justify-content: space-around;
-            border-top: 1px solid #333;
-            padding-top: 10px;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .stat-value.highlight {
+            color: #22d3ee;
+        }
+
+        .footnote {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 8px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Cat Ears DPS Calculator</h1>
-    <div class="description">
-        Simulating immediate impact gameplay mechanics. Cat Ears removes all orbital travel delay, causing petals to burst instantly on reload and disappear.
+    <h1>Hornex Calculator</h1>
+    <div class="subtitle">Estimate real combat damage with cat ears mechanics and traveling latency.</div>
+
+    <div class="hotbar-container">
+        <div class="hotbar-label">Click a slot to toggle an Ultra Rice petal on or off</div>
+        <div class="hotbar-grid" id="hotbar">
+            <!-- Slot 1 Locked to Ears -->
+            <div class="petal-slot">
+                <span class="slot-number">1</span>
+                <span class="petal-icon">🐱</span>
+                <span class="petal-name">Ears</span>
+            </div>
+            <!-- Slots 2-15 generated dynamically -->
+        </div>
     </div>
 
-    <div class="config-box">
-        <!-- Locked Cat Ears Slot info -->
-        <div class="input-group">
-            <label>Slot 1 Modifier</label>
-            <span class="badge">🐱 Cat Ears Equipped</span>
+    <button class="calc-btn" onclick="runCalculations()">Calculate</button>
+
+    <h2>Analysis</h2>
+    <div class="analysis-grid">
+        <div class="stat-card">
+            <div class="stat-label">Active Rice Slots</div>
+            <div id="active-slots" class="stat-value">14</div>
         </div>
-
-        <!-- Dynamic Rice Count Input -->
-        <div class="input-group">
-            <label for="rice-count">Ultra Rice Petals (Slots 2–15)</label>
-            <input type="number" id="rice-count" min="0" max="14" value="14">
+        <div class="stat-card">
+            <div class="stat-label">Total Combined DPS</div>
+            <div id="total-dps" class="stat-value highlight">408,240</div>
+            <div class="footnote">Accounts for 0.05s reload + 0.05s hit delay.</div>
         </div>
-
-        <button class="calc-btn" onclick="calculateCatEarsDPS()">Calculate Damage</button>
-    </div>
-
-    <div class="result-panel">
-        <h2>Total Combined DPS</h2>
-        <div class="dps-value" id="total-dps">816,480</div>
-        
-        <div class="stats-breakdown">
-            <span>Per Rice DPS: 58,320</span>
-            <span>Reload Time: 0.05s</span>
+        <div class="stat-card">
+            <div class="stat-label">Total Hits Per Second</div>
+            <div id="hits-per-second" class="stat-value">140</div>
+            <div class="footnote">Combined speed across all elements.</div>
         </div>
     </div>
 </div>
 
 <script>
-    function calculateCatEarsDPS() {
-        // Core configurations defined by user parameters
-        const riceDamage = 2916;
-        const riceReload = 0.05;
+    const totalSlots = 15;
+    // Core parameters provided by user settings
+    const riceDamage = 2916;
+    const baseReload = 0.05;
+    const travelDelay = 0.05; // 1.) Added 0.05-second travel latency feature
+    const totalCycleTime = baseReload + travelDelay; // Total loop time per drop sequence
+
+    // Track active deck arrays (Slots 2 through 15 default to true/active)
+    let slotStates = Array(totalSlots + 1).fill(true);
+
+    const hotbar = document.getElementById('hotbar');
+
+    // Build functional deck hotbar rows matching gameplay parameters
+    for (let i = 2; i <= totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'petal-slot';
+        slot.id = `slot-${i}`;
+        slot.innerHTML = `
+            <span class="slot-number">${i}</span>
+            <span class="petal-icon">🍚</span>
+            <span class="petal-name">Rice</span>
+        `;
         
-        // Grab and clamp the user input input values between 0 and 14 max slots
-        let riceCount = parseInt(document.getElementById('rice-count').value);
-        if (isNaN(riceCount) || riceCount < 0) riceCount = 0;
-        if (riceCount > 14) {
-            riceCount = 14;
-            document.getElementById('rice-count').value = 14;
+        // Setup direct toggle click behaviors
+        slot.addEventListener('click', () => {
+            slotStates[i] = !slotStates[i];
+            if (slotStates[i]) {
+                slot.className = 'petal-slot';
+                slot.innerHTML = `
+                    <span class="slot-number">${i}</span>
+                    <span class="petal-icon">🍚</span>
+                    <span class="petal-name">Rice</span>
+                `;
+            } else {
+                slot.className = 'petal-slot empty';
+                slot.innerHTML = `
+                    <span class="slot-number">${i}</span>
+                    <span class="petal-icon" style="color:#4b5563; font-weight:normal;">—</span>
+                `;
+            }
+            runCalculations();
+        });
+        
+        hotbar.appendChild(slot);
+    }
+
+    function runCalculations() {
+        // Count how many inventory indexes remain active
+        let riceCount = 0;
+        for (let i = 2; i <= totalSlots; i++) {
+            if (slotStates[i]) riceCount++;
         }
 
-        // Calculation: (Damage / Reload) = Hits per second per individual petal
-        const singlePetalDPS = riceDamage / riceReload;
-        const totalDPS = riceCount * singlePetalDPS;
+        // Calculations accounting for structural projectile travel latencies
+        const hitsPerSecondPerPetal = 1 / totalCycleTime; // 1 / 0.10s = 10 attacks per second
+        const totalHitsPerSecond = riceCount * hitsPerSecondPerPetal;
+        const totalDPS = totalHitsPerSecond * riceDamage;
 
-        // Render localized comma formatting back to output fields
+        // Render localized updates back into elements
+        document.getElementById('active-slots').innerText = riceCount;
         document.getElementById('total-dps').innerText = Math.round(totalDPS).toLocaleString();
+        document.getElementById('hits-per-second').innerText = Math.round(totalHitsPerSecond).toLocaleString();
     }
+
+    // Execute baseline setup calculations upon startup initialization
+    runCalculations();
 </script>
 
 </body>
